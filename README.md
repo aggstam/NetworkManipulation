@@ -9,7 +9,14 @@ For each sub-network, the following are calculated:
 - Various centralities (e.g. Degree, Closeness, Eigenvector, etc.)
 - Similarity tables (e.g. Graph Distance, Jaccard's Coefficient, etc.)
 - Metrics predictions of consecutive sub-networks
-<br>
+
+Prerequisites:
+- Python 3.8.5(x64)
+- numpy latest
+- networkx latest
+- pandas latest
+- matplotlib latest
+- scipy latest
 <br>
 References:
 <br>
