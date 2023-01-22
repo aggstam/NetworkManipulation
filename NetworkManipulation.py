@@ -1,6 +1,12 @@
-# This script performs fundamental social network analysis tasks 
+# --------------------------------------------------------------------------
+#
+# This script performs fundamental social network analysis tasks
 # on the temporal  network graph for the StackOverflow-related dataset.
 # On each execution, a dedicated folder is created containing all result files.
+#
+# Author: Aggelos Stamatiou, November 2020
+#
+# --------------------------------------------------------------------------
 
 import sys
 import os
@@ -16,7 +22,7 @@ from math import log
 def printf(format, *args):
     sys.stdout.write(format % args)
 
-# Creates a figure file containing the distribution histogram of a given degrees array.    
+# Creates a figure file containing the distribution histogram of a given degrees array.
 def PlotCentralityDistribution(Index, Type, Degrees):
     plt.hist(Degrees.values());
     plt.xlabel('Degrees');
@@ -32,10 +38,10 @@ def graph_distances(G):
         for target in G.nodes():
             Sgd[source][target] = 0;
             if nx.has_path(G, source, target):
-                Sgd[source][target] = nx.shortest_path_length(G, source, target);        
+                Sgd[source][target] = nx.shortest_path_length(G, source, target);
     return Sgd;
 
-# Computes Common Neighbors metric: S_CN=[S_CN (u,v)]=|Γ(u)∩Γ(v)| 
+# Computes Common Neighbors metric: S_CN=[S_CN (u,v)]=|Γ(u)∩Γ(v)|
 def common_neighbors(G):
     Scn = dict();
     cn = dict();
@@ -43,7 +49,7 @@ def common_neighbors(G):
         Scn[source] = dict();
         cn[source] = dict();
         for target in G.nodes():
-            if (target != source):            
+            if (target != source):
                 target_neighborhood = list(G.successors(target)) + list(G.predecessors(target));
                 if (source in target_neighborhood):
                     for neighbor in target_neighborhood:
@@ -53,7 +59,7 @@ def common_neighbors(G):
                             if (neighbor not in cn[source]):
                                 cn[source][neighbor] = [];
                             Scn[source][neighbor] += 1;
-                            cn[source][neighbor].append(target);                        
+                            cn[source][neighbor].append(target);
     return Scn, cn;
 
 # Computes Jaccard's Coefficient metric: S_JC=[S_JC (u,v)]=(|Γ(u)∩Γ(v)|)/(|Γ(u)UΓ(v)|)
@@ -67,7 +73,7 @@ def jaccards_coefficient(G, Scn):
             union_len = len(list(set().union(source_neighborhood, target_neighborhood)));
             Sjc[source][target] = 0; # <-- 0 h 1????
             if ((union_len > 0) & (Scn[source] is not None) & (target in Scn[source].keys())):
-                Sjc[source][target] = Scn[source][target]/union_len;              
+                Sjc[source][target] = Scn[source][target]/union_len;
     return Sjc;
 
 # Computes Adamic/Adar metric: S_A=[S_A (u,v)]=∑_(z∈Γ(u)∩Γ(v))▒1/(log⁡(|Γ(z)|))
@@ -88,7 +94,7 @@ def preferential_attachment(G):
     for source in G.nodes():
         Spa[source] = dict();
         for target in G.nodes():
-            Spa[source][target] = G.degree(source) * G.degree(target);      
+            Spa[source][target] = G.degree(source) * G.degree(target);
     return Spa;
 
 # For a given similarity metric table:
@@ -98,7 +104,7 @@ def preferential_attachment(G):
 #   4. Compute prediction success rate.
 #   4. Write results in a file.
 def similiraty_metric_predictions(file, Type, Similarity_Table, Prediction_Weight, Previous_Period_Edges, Next_Period_Edges):
-    Sx_max = 0;    
+    Sx_max = 0;
     for k in Similarity_Table:
         if (len(Similarity_Table[k].items()) > 0):
             dict_max = max(Similarity_Table[k].items(), key=op.itemgetter(1))[1];
@@ -132,23 +138,23 @@ def similiraty_metric_predictions(file, Type, Similarity_Table, Prediction_Weigh
 
 # Writes given Dictionary to a CSV file.
 def write_dictionary_to_csv(File, Dict):
-    with open(File, 'w') as f: 
+    with open(File, 'w') as f:
         for key in Dict.keys():
             f.write(',{0}'.format(key));
-        f.write('\n');                
+        f.write('\n');
         for key in Dict.keys():
             f.write('{0}'.format(key));
             for value in Dict[key].values():
                 f.write(',{0}'.format(value));
-            f.write('\n'); 
-            
+            f.write('\n');
+
 #####################################################
 
 # Retrieving required execution parameters.
-network_file = input('Welcome to Network Analysis application. \nPlease provide the network file path: ');
+network_file = input('Welcome to Network Analysis application.\nPlease provide the network file path: ');
 N = int(input('Please provide N (int) for splitting the network to time periods: '));
 # Metric weights.
-Pgd = float(input('Please provide the following metric weights in 0.xx format (e.g 50% -> 0.50): \nPgd -> '));
+Pgd = float(input('Please provide the following metric weights in 0.xx format (e.g 50% -> 0.50):\nPgd ->'));
 Pcn = float(input('Pcn -> '));
 Pjc = float(input('Pjc -> '));
 Pa = float(input('Pa -> '));
@@ -193,12 +199,12 @@ printf('\tLatest Network node: User %d connected with user %d on %s.\n', user1, 
 # N time periods computation and Sub-Networks creation. (2)
 DT = max_timestamp - min_timestamp;
 dT = DT/N;
-        
+
 # Compute boundaries.
 TJs = [];
 for j in range(N):
     TJs.append(min_timestamp + j*dT);
-    
+
 # Sub-networks creation.
 printf('\nCreating %d sub-networks...\n', N);
 Sub_Networks = [];
@@ -262,10 +268,10 @@ for j in range(1,N):
     consecutive_sub_networks_folder = 'Consecutive_Sub_Networks_{0}_and_{1}'.format(j-1, j);
     os.mkdir(consecutive_sub_networks_folder);
     os.chdir(consecutive_sub_networks_folder);
-    G = nx.DiGraph()    
-    common_nodes = set(Sub_Networks_Graphs[j-1].nodes()).intersection(set(Sub_Networks_Graphs[j].nodes()));    
+    G = nx.DiGraph()
+    common_nodes = set(Sub_Networks_Graphs[j-1].nodes()).intersection(set(Sub_Networks_Graphs[j].nodes()));
     with open('V[t{0},t{1}].txt'.format(j-1, j+1), 'w') as f:
-        f.writelines('%s\n' % common_node for common_node in common_nodes);  
+        f.writelines('%s\n' % common_node for common_node in common_nodes);
     printf('\tFile V[t%d,t%d].txt created.\n', j-1, j+1);
     G.add_nodes_from(common_nodes);
     # Retrieving all in and out edges of common nodes
@@ -273,13 +279,13 @@ for j in range(1,N):
     # Filtering list to contain edges that both nodes are in common nodes list. Also duplicates are removed.
     G0Edges = list(dict.fromkeys([(u,v) for u,v in G0Edges if (u in common_nodes) & (v in common_nodes)]));
     with open('E[t{0},t{1}].txt'.format(j-1, j), 'w') as f:
-        f.writelines('%s\n' % str(G0Edge) for G0Edge in G0Edges);  
+        f.writelines('%s\n' % str(G0Edge) for G0Edge in G0Edges);
     printf('\tFile E[t%d,t%d].txt created.\n', j-1, j);
     G.add_edges_from(G0Edges);
     G1Edges = list(Sub_Networks_Graphs[j].out_edges(common_nodes)) + list(Sub_Networks_Graphs[j].in_edges(common_nodes));
     G1Edges = list(dict.fromkeys([(u,v) for u,v in G1Edges if (u in common_nodes) & (v in common_nodes)]));
     with open('E[t{0},t{1}].txt'.format(j, j+1), 'w') as f:
-        f.writelines('%s\n' % str(G1Edge) for G1Edge in G1Edges);  
+        f.writelines('%s\n' % str(G1Edge) for G1Edge in G1Edges);
     printf('\tFile E[t%d,t%d].txt created.\n', j, j+1);
     Consecutive_Sub_Networks_Graphs_G1_Edges.append(G1Edges);
     Consecutive_Sub_Networks_Graphs.append(G);
@@ -300,19 +306,19 @@ for j in range(N-1):
     write_dictionary_to_csv('Consecutive_Sub_Networks_{0}_and_{1}_Graph_Distances.csv'.format(j, j+1), Sgd);
     printf('\tFile Consecutive_Sub_Networks_%d_and_%d_Graph_Distances.csv created.\n', j, j+1);
     Sgd_List.append(Sgd);
-    [Scn,cn] = common_neighbors(Consecutive_Sub_Networks_Graphs[j]);                        
+    [Scn,cn] = common_neighbors(Consecutive_Sub_Networks_Graphs[j]);
     write_dictionary_to_csv('Consecutive_Sub_Networks_{0}_and_{1}_Common_Neighbors.csv'.format(j, j+1), Scn);
     printf('\tFile Consecutive_Sub_Networks_%d_and_%d_Common_Neighbors.csv created.\n', j, j+1);
-    Scn_List.append(Scn); 
-    Sjc = jaccards_coefficient(Consecutive_Sub_Networks_Graphs[j], Scn);              
+    Scn_List.append(Scn);
+    Sjc = jaccards_coefficient(Consecutive_Sub_Networks_Graphs[j], Scn);
     write_dictionary_to_csv('Consecutive_Sub_Networks_{0}_and_{1}_Jaccards_Coefficient.csv'.format(j, j+1), Sjc);
     printf('\tFile Consecutive_Sub_Networks_%d_and_%d_Jaccards_Coefficient.csv created.\n', j, j+1);
-    Sjc_List.append(Sjc); 
-    Sa = adamic_adar(Consecutive_Sub_Networks_Graphs[j], cn);      
+    Sjc_List.append(Sjc);
+    Sa = adamic_adar(Consecutive_Sub_Networks_Graphs[j], cn);
     write_dictionary_to_csv('Consecutive_Sub_Networks_{0}_and_{1}_Adamic_Adar.csv'.format(j, j+1), Sa);
     printf('\tFile Consecutive_Sub_Networks_%d_and_%d_Adamic_Adar.csv created.\n', j, j+1);
-    Sa_List.append(Sa); 
-    Spa = preferential_attachment(Consecutive_Sub_Networks_Graphs[j]);      
+    Sa_List.append(Sa);
+    Spa = preferential_attachment(Consecutive_Sub_Networks_Graphs[j]);
     write_dictionary_to_csv('Consecutive_Sub_Networks_{0}_and_{1}_Preferential_Attachment.csv'.format(j, j+1), Spa);
     printf('\tFile Consecutive_Sub_Networks_%d_and_%d_Preferential_Attachment.csv created.\n', j, j+1);
     Spa_List.append(Spa);
