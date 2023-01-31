@@ -10,7 +10,7 @@ For each sub-network, the following are calculated:
 - Similarity tables (e.g. Graph Distance, Jaccard's Coefficient, etc.)
 - Metrics predictions of consecutive sub-networks
 
-# Dependencies
+## Dependencies
 - Python 3.8.5(x64)
 - numpy latest
 - networkx latest
@@ -18,7 +18,7 @@ For each sub-network, the following are calculated:
 - matplotlib latest
 - scipy latest
 
-# Usage
+## Usage
 Before executing any script, install required dependencies:
 ```
 % pip install --user -r requirements.txt
@@ -183,6 +183,5 @@ Consecutive sub-networks similarity metrics predictions files created.
 Execution finished!
 ```
 
-References:
-<br>
+## References
 [1] https://snap.stanford.edu/data/sx-stackoverflow.html
