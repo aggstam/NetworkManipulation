@@ -29,7 +29,8 @@ Execute the script:
 ```
 % python NetworkManipulation.py
 ```
-Execution example:
+
+## Execution example
 ```
 ❯ python NetworkManipulation.py
 Welcome to Network Analysis application.
