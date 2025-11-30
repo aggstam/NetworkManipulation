@@ -19,20 +19,26 @@ For each sub-network, the following are calculated:
 - scipy latest
 
 ## Usage
-Before executing any script, install required dependencies:
+Before executing any script, create a `python` virtual environment
+and source it:
+```shell
+$ python -m venv venv
+$ source venv/bin/activate
 ```
-% pip install --user -r requirements.txt
+Install required dependencies:
+```shell
+$ pip install -r requirements.txt
 ```
 A test network file(sub-set) has been provided to play with!
 <br>
 Execute the script:
-```
-% python NetworkManipulation.py
+```shell
+$ python NetworkManipulation.py
 ```
 
 ## Execution example
-```
-❯ python NetworkManipulation.py
+```shell
+$ python NetworkManipulation.py
 Welcome to Network Analysis application.
 Please provide the network file path: test-network.txt
 Please provide N (int) for splitting the network to time periods: 5
